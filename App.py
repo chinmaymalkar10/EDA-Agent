@@ -187,8 +187,7 @@ def read_uploaded_file(uploaded_file) -> pd.DataFrame:
         try:
             return pd.read_csv(uploaded_file)
         except Exception as e:
-            import logging as _log
-            _log.getLogger("eda_agent").warning(f"[UPLOAD] CSV fallback failed ({e}), trying Excel")
+            log_error(e, context="file_upload_csv_fallback")
             uploaded_file.seek(0)
             return pd.read_excel(uploaded_file)
 
@@ -281,9 +280,8 @@ def render_upload_col():
 # Pipeline runner
 # ---------------------------------------------------------------------------
 
-def run_pipeline(tmp_path: str, df_preview: pd.DataFrame):
+def run_pipeline(tmp_path: str):
     """Run all EDA agents sequentially and store results in session_state."""
-    import eda_agent as ea
     from eda_agent import (EDAState, get_minimal_schema,
                            data_explorer_agent, planner_agent,
                            code_gen_exec_agent, insights_agent)
@@ -344,8 +342,7 @@ def run_pipeline(tmp_path: str, df_preview: pd.DataFrame):
         try:
             os.unlink(tmp_path)
         except Exception as e:
-            import logging as _log
-            _log.getLogger("eda_agent").warning(f"[CLEANUP] Could not delete temp file {tmp_path}: {e}")
+            log_error(e, context="temp_file_cleanup")
 
     except Exception as e:
         log_error(e, context="run_pipeline")
@@ -369,7 +366,7 @@ def render_run_col(uploaded_file, df_preview):
         if run_button:
             tmp_path = save_uploaded_to_csv(uploaded_file, df_preview)
             st.session_state['dataframe'] = df_preview.copy()
-            run_pipeline(tmp_path, df_preview)
+            run_pipeline(tmp_path)
     else:
         st.markdown("""
         <div style="
@@ -598,8 +595,6 @@ def _pdf_step_results(story, styles, usable_w, exec_results):
     """Append the step-by-step EDA results to story."""
     from reportlab.lib.units import cm
     from reportlab.platypus import Paragraph, Spacer, Image as RLImage
-    import logging as _log
-
     story.append(Paragraph("EDA Step-by-Step Results", styles["h1"]))
     story.append(_pdf_divider())
 
