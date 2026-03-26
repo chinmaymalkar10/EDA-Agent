@@ -1,0 +1,544 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+    --bg: #0d0f14;
+    --surface: #141720;
+    --surface2: #1c2030;
+    --accent: #7ee8a2;
+    --accent2: #38b2ff;
+    --accent3: #ff6b9d;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --border: #252a3a;
+}
+
+* { font-family: 'DM Sans', sans-serif; }
+
+.stApp {
+    background: var(--bg);
+    color: var(--text);
+}
+
+[data-testid="stSidebar"] {
+    background: var(--surface) !important;
+    border-right: 1px solid var(--border);
+}
+
+.main-header {
+    font-family: 'Space Mono', monospace;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.25rem;
+}
+
+.sub-header {
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 300;
+    margin-bottom: 2rem;
+    letter-spacing: 0.01em;
+}
+
+.step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    transition: border-color 0.2s;
+}
+
+.step-card:hover {
+    border-color: var(--accent);
+}
+
+.step-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.step-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+}
+
+.step-status-success {
+    display: inline-block;
+    background: rgba(126, 232, 162, 0.1);
+    color: var(--accent);
+    border: 1px solid rgba(126, 232, 162, 0.3);
+    border-radius: 20px;
+    padding: 0.15rem 0.75rem;
+    font-size: 0.75rem;
+    font-family: 'Space Mono', monospace;
+}
+
+.step-status-error {
+    display: inline-block;
+    background: rgba(255, 107, 157, 0.1);
+    color: var(--accent3);
+    border: 1px solid rgba(255, 107, 157, 0.3);
+    border-radius: 20px;
+    padding: 0.15rem 0.75rem;
+    font-size: 0.75rem;
+    font-family: 'Space Mono', monospace;
+}
+
+.agent-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    margin: 0.25rem;
+}
+
+.agent-badge.active {
+    color: var(--accent2);
+    border-color: var(--accent2);
+    background: rgba(56, 178, 255, 0.08);
+}
+
+.plan-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+
+.plan-item:last-child { border-bottom: none; }
+
+.plan-idx {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    background: rgba(126, 232, 162, 0.1);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.metric-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    text-align: center;
+}
+
+.metric-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 0.2rem;
+}
+
+.code-block {
+    background: #0a0c10;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    overflow-x: auto;
+    color: #a8b4c8;
+    line-height: 1.6;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.output-text {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent2);
+    white-space: pre-wrap;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.error-box {
+    background: rgba(255, 107, 157, 0.05);
+    border: 1px solid rgba(255, 107, 157, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.8rem;
+    color: var(--accent3);
+    font-family: 'Space Mono', monospace;
+}
+
+.domain-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, rgba(56,178,255,0.15), rgba(126,232,162,0.15));
+    border: 1px solid rgba(56,178,255,0.4);
+    border-radius: 20px;
+    padding: 0.35rem 1rem;
+    font-size: 0.82rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent2);
+    margin-bottom: 1rem;
+}
+
+.insights-panel {
+    background: linear-gradient(135deg, #141c28, #111820);
+    border: 1px solid rgba(56, 178, 255, 0.25);
+    border-left: 4px solid var(--accent2);
+    border-radius: 12px;
+    padding: 1.75rem 2rem;
+    margin: 1rem 0 2rem 0;
+    line-height: 1.8;
+    font-size: 0.92rem;
+    color: #c8d4e8;
+}
+
+.insights-panel h2 {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    color: var(--accent2);
+    margin: 1.5rem 0 0.5rem 0;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(56,178,255,0.15);
+}
+
+.insights-panel h2:first-child { margin-top: 0; }
+
+.insights-panel p { margin: 0.5rem 0; }
+
+.insights-panel ul {
+    margin: 0.4rem 0;
+    padding-left: 1.5rem;
+}
+
+.insights-panel li { margin: 0.25rem 0; }
+
+/* Chatbot styles */
+.chatbot-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.chat-header {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+
+.pipeline-flow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+}
+
+.pipeline-node {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+}
+
+.pipeline-node.done {
+    color: var(--accent);
+    border-color: rgba(126, 232, 162, 0.4);
+    background: rgba(126, 232, 162, 0.05);
+}
+
+.pipeline-arrow {
+    color: var(--border);
+    font-size: 1.2rem;
+}
+
+.section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin: 1.5rem 0 0.75rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(126, 232, 162, 0.3);
+}
+
+/* Streamlit overrides */
+.stButton > button {
+    background: linear-gradient(135deg, var(--accent), #38d68a) !important;
+    color: #0d0f14 !important;
+    font-family: 'Space Mono', monospace !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.05em !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0.6rem 1.5rem !important;
+    cursor: pointer !important;
+}
+
+.stButton > button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(126, 232, 162, 0.3) !important;
+}
+
+/* Download button — match regular button style */
+.stDownloadButton > button {
+    background: linear-gradient(135deg, var(--accent), #38d68a) !important;
+    color: #0d0f14 !important;
+    font-family: 'Space Mono', monospace !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.05em !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0.6rem 1.5rem !important;
+    cursor: pointer !important;
+}
+
+.stDownloadButton > button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(126, 232, 162, 0.3) !important;
+}
+
+/* Reset button — solid red, always visible */
+[data-testid="stBaseButton-primary"] {
+    background: #e05252 !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+[data-testid="stBaseButton-primary"]:hover {
+    background: #c43c3c !important;
+    background-image: none !important;
+    box-shadow: 0 4px 16px rgba(224, 82, 82, 0.4) !important;
+}
+
+
+.stFileUploader {
+    background: var(--surface) !important;
+    border: 1px dashed var(--border) !important;
+    border-radius: 12px !important;
+    padding: 1rem !important;
+}
+
+[data-testid="stFileUploader"] > div,
+[data-testid="stFileUploader"] > div > div,
+[data-testid="stFileUploader"] section,
+[data-testid="stFileDropzoneInstructions"],
+[data-testid="stFileUploader"] button {
+    background: var(--bg) !important;
+    border: 1px dashed var(--accent) !important;
+    border-radius: 10px !important;
+}
+
+/* Text inside the browse section */
+[data-testid="stFileDropzoneInstructions"] span,
+[data-testid="stFileDropzoneInstructions"] p,
+[data-testid="stFileUploader"] section span,
+[data-testid="stFileUploader"] section p {
+    color: var(--text) !important;
+}
+
+/* Uploaded filename text */
+[data-testid="stFileUploader"] span,
+[data-testid="stFileUploader"] small,
+[data-testid="stFileUploader"] p,
+[data-testid="stFileUploaderFileName"] {
+    color: var(--accent) !important;
+    font-weight: 600 !important;
+}
+
+.stProgress > div > div {
+    background: linear-gradient(90deg, var(--accent), var(--accent2)) !important;
+}
+
+.stTabs [data-baseweb="tab-list"] {
+    background: var(--surface) !important;
+    border-radius: 10px;
+    padding: 0.25rem;
+    gap: 0.25rem;
+    border: 1px solid var(--border);
+}
+
+.stTabs [data-baseweb="tab"] {
+    font-family: 'Space Mono', monospace !important;
+    font-size: 0.75rem !important;
+    color: var(--muted) !important;
+    border-radius: 8px !important;
+}
+
+.stTabs [aria-selected="true"] {
+    background: var(--accent) !important;
+    color: #0d0f14 !important;
+}
+
+div[data-testid="stExpander"] {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+}
+
+/* Expander header — always visible, not just on hover */
+div[data-testid="stExpander"] summary {
+    background: linear-gradient(135deg, rgba(126,232,162,0.06), rgba(56,178,255,0.04)) !important;
+    border-radius: 10px !important;
+    padding: 0.75rem 1rem !important;
+}
+
+div[data-testid="stExpander"] summary:hover {
+    background: linear-gradient(135deg, rgba(126,232,162,0.12), rgba(56,178,255,0.08)) !important;
+}
+
+/* Expander title text color */
+div[data-testid="stExpander"] summary span {
+    color: var(--text) !important;
+    font-size: 0.92rem !important;
+    font-weight: 600 !important;
+}
+
+/* Scroll to top/bottom button */
+[data-testid="scrollToBottomButton"] button,
+[data-testid="scrollToTopButton"] button {
+    background: #ffffff !important;
+    color: #0d0f14 !important;
+    border: none !important;
+    opacity: 1 !important;
+}
+[data-testid="scrollToTopButton"] button svg,
+[data-testid="scrollToBottomButton"] button svg {
+    fill: #0d0f14 !important;
+    stroke: #0d0f14 !important;
+}
+
+/* Expander arrow icon */
+div[data-testid="stExpander"] summary svg {
+    fill: var(--accent) !important;
+}
+
+.stDataFrame {
+    background: var(--surface) !important;
+}
+
+label { color: var(--muted) !important; font-size: 0.8rem !important; }
+
+/* Chat toggle button */
+.chat-toggle-btn > button {
+    background: linear-gradient(135deg, rgba(126,232,162,0.12), rgba(56,178,255,0.12)) !important;
+    color: var(--accent2) !important;
+    border: 1px solid rgba(56,178,255,0.35) !important;
+    font-family: 'Space Mono', monospace !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+    border-radius: 8px !important;
+    padding: 0.55rem 1.4rem !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+.chat-toggle-btn > button:hover {
+    border-color: var(--accent2) !important;
+    box-shadow: 0 0 16px rgba(56,178,255,0.2) !important;
+    transform: none !important;
+}
+
+/* Chat panel container */
+.chat-panel-wrap {
+    background: #0d1117;
+    border: 1px solid #252a3a;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+.chat-panel-header {
+    background: linear-gradient(135deg, rgba(126,232,162,0.06), rgba(56,178,255,0.06));
+    border-bottom: 1px solid #252a3a;
+    padding: 0.8rem 1.1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: #38b2ff;
+}
+.chat-msg-user {
+    background: #1c2030;
+    border: 1px solid #252a3a;
+    border-radius: 12px 12px 4px 12px;
+    padding: 0.7rem 0.9rem;
+    margin: 0.35rem 0 0.35rem 18%;
+    font-size: 0.86rem;
+    color: #e8eaf0;
+    line-height: 1.55;
+}
+.chat-msg-user .chat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    color: #6b7280;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.25rem;
+}
+.chat-msg-assistant {
+    background: #141c28;
+    border: 1px solid rgba(56,178,255,0.15);
+    border-left: 3px solid #38b2ff;
+    border-radius: 4px 12px 12px 12px;
+    padding: 0.7rem 0.9rem;
+    margin: 0.35rem 18% 0.35rem 0;
+    font-size: 0.86rem;
+    color: #c8d4e8;
+    line-height: 1.7;
+}
+.chat-msg-assistant .chat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    color: #38b2ff;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.25rem;
+}
