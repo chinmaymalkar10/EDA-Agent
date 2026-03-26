@@ -74,7 +74,7 @@ Upload any tabular dataset and the agent autonomously explores it, builds a cust
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/eda-agent.git
+git clone https://github.com/chinmaymalkar10/EDA-Agent.git
 cd eda-agent
 
 # 2. Create and activate a virtual environment
