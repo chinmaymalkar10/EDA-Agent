@@ -133,7 +133,7 @@ eda-agent/
 ├── .env                    # Azure OpenAI credentials (create this — not committed)
 │
 ├── .streamlit/
-│   └── config.toml         # Streamlit server config (upload size limit)
+│   └── config.toml         # Auto-created — Streamlit server config (upload size limit)
 │
 ├── eda_outputs/            # Auto-created — plots generated during a run
 ├── logs.log                # Text log — per-call token stats, optional full LLM logs
