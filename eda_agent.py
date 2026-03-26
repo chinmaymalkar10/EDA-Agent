@@ -9,7 +9,6 @@ import json
 import traceback
 import io
 import base64
-import logging
 import datetime
 from typing import TypedDict, List
 from pathlib import Path
@@ -25,29 +24,22 @@ from langgraph.graph import StateGraph, END
 # Configuration — imported from config.py
 # ---------------------------------------------------------------------------
 from config import (
-    ENABLE_LOGGING, LOG_TOKEN_STATS, MAX_RETRIES,
+    ENABLE_LOGGING, MAX_RETRIES,
     EXPLORER_MAX_ROUNDS_PER_COL,
     TOOL_OUTPUT_TRUNCATE, STEP_FINDING_TRUNCATE,
     CHATBOT_STEP_OUTPUT_CHARS, CHATBOT_ERROR_CHARS,
     INSIGHTS_STEP_OUTPUT_CHARS, INSIGHTS_ERROR_CHARS,
     CHATBOT_MAX_TOOL_ROUNDS,
-    LOG_FILE, JSON_LOG_FILE,
+    JSON_LOG_FILE,
 )
 
-_file_logger = logging.getLogger("eda_agent")
-_file_logger.setLevel(logging.DEBUG)
-if ENABLE_LOGGING or LOG_TOKEN_STATS:
-    # Open in write mode ("w") to clear previous run's logs
-    _file_handler = logging.FileHandler(LOG_FILE, mode="w", encoding="utf-8")
-    _file_handler.setFormatter(logging.Formatter("%(message)s"))
-    _file_logger.addHandler(_file_handler)
-_file_logger.propagate = False
-
-# JSON structured log — always active, one JSON object per line
+# JSON structured log — single log file for all events
 _json_log_handle = open(JSON_LOG_FILE, "w", encoding="utf-8")
 
+_current_agent: str = "unknown"
+
 def _log_json(event: str, **fields):
-    """Append a single JSON line to eda_agent.jsonl."""
+    """Append a single JSON line to logs.jsonl."""
     record = {
         "ts": datetime.datetime.now().isoformat(),
         "event": event,
@@ -56,8 +48,6 @@ def _log_json(event: str, **fields):
     }
     _json_log_handle.write(json.dumps(record, ensure_ascii=False) + "\n")
     _json_log_handle.flush()
-
-_current_agent: str = "unknown"
 
 # ---------------------------------------------------------------------------
 # Token / cost tracker
@@ -85,60 +75,22 @@ def set_agent_context(name: str):
     _log_json("agent_start", agent=name)
 
 def _log_llm_call(agent: str, messages: list, tools: list, response_text: str, tool_calls_found: list):
-    """Write one structured block to eda_agent.log for every LLM call — NO truncation."""
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    sep  = "=" * 80
-    dash = "-" * 80
+    """Write full LLM call details to logs.jsonl when ENABLE_LOGGING is True."""
+    if not ENABLE_LOGGING:
+        return
 
-    # ── Tool names advertised to the LLM ──────────────────────────────────
     tool_names = []
     if tools:
         for t in tools:
             tool_names.append(t.get("name", str(t)) if isinstance(t, dict) else str(t))
 
-    # ── Full input messages — every role, full content ─────────────────────
-    input_sections = []
-    for i, m in enumerate(messages):
-        role    = m.get("role", "?").upper()
-        content = str(m.get("content", ""))
-        input_sections.append(f"  ┌─ MESSAGE {i+1} [{role}] ({len(content)} chars) ─")
-        # Indent every line of the content for readability
-        for line in content.splitlines():
-            input_sections.append(f"  │ {line}")
-        input_sections.append(f"  └{'─' * 60}")
-
-    # ── Tool calls in the response ─────────────────────────────────────────
-    tc_sections = []
-    for tc in (tool_calls_found or []):
-        args_str = json.dumps(tc.get("arguments", {}), ensure_ascii=False)
-        tc_sections.append(f"  TOOL_CALL → {tc.get('name', '?')}")
-        for line in args_str.splitlines():
-            tc_sections.append(f"    {line}")
-
-    # ── Full output text ───────────────────────────────────────────────────
-    out_text = (response_text or "").strip()
-    out_lines = [f"  │ {line}" for line in out_text.splitlines()] if out_text else ["  │ (no text — tool call only)"]
-
-    block = "\n".join([
-        f"\n{sep}",
-        f"TIMESTAMP : {now}",
-        f"AGENT     : {agent}",
-        f"TOOLS     : {tool_names}",
-        f"MESSAGES  : {len(messages)}",
-        sep,
-        f"── INPUT ──",
-        *input_sections,
-        dash,
-        f"── OUTPUT TEXT ({len(out_text)} chars) ──",
-        "  ┌" + "─" * 60,
-        *out_lines,
-        "  └" + "─" * 60,
-        *([dash, "── TOOL CALLS ──", *tc_sections] if tc_sections else []),
-        sep,
-    ]) + "\n"
-
-    if ENABLE_LOGGING:
-        _file_logger.info(block)
+    _log_json("llm_call_detail",
+              agent=agent,
+              tools=tool_names,
+              message_count=len(messages),
+              messages=[{"role": m.get("role", "?"), "content": str(m.get("content", ""))} for m in messages],
+              response_text=(response_text or "").strip(),
+              tool_calls=[{"name": tc.get("name", "?"), "arguments": tc.get("arguments", {})} for tc in (tool_calls_found or [])])
 
 # ---------------------------------------------------------------------------
 # DataFrame cache — avoids re-reading the same CSV multiple times per run
@@ -165,7 +117,6 @@ def _clear_output_dir():
         try:
             shutil.rmtree(output_dir)
         except Exception as e:
-            _file_logger.warning(f"[CLEANUP] Could not clear eda_outputs/: {e}")
             _log_json("warning", category="cleanup", error=str(e))
 
 
@@ -222,22 +173,11 @@ def get_response(history: list, tools: list = None):
         _token_stats["output"] += out_tok
         _token_stats["calls"]  += 1
 
-    # Log per-call token stats
-    if LOG_TOKEN_STATS:
-        total_so_far = _token_stats["input"] + _token_stats["output"]
-        _file_logger.info(
-            f"[TOKENS] agent={_current_agent} | "
-            f"call #{_token_stats['calls']} | "
-            f"in={in_tok:,} out={out_tok:,} | "
-            f"cumulative: in={_token_stats['input']:,} out={_token_stats['output']:,} total={total_so_far:,}"
-        )
-
     # Extract text + tool calls for logging
     resp_text  = extract_text(response)
     resp_tools = extract_tool_calls(response)
-    _log_llm_call(_current_agent, messages, tools or [], resp_text, resp_tools)
 
-    # JSON structured log
+    # JSON structured log — token stats + call metadata
     _log_json("llm_call",
               call_number=_token_stats["calls"],
               model=MODEL,
@@ -248,6 +188,9 @@ def get_response(history: list, tools: list = None):
               message_count=len(messages),
               tool_calls=[tc.get("name", "?") for tc in (resp_tools or [])],
               response_chars=len(resp_text or ""))
+
+    # Full LLM call detail (messages, response) — only when ENABLE_LOGGING is True
+    _log_llm_call(_current_agent, messages, tools or [], resp_text, resp_tools)
 
     return response
 
@@ -551,7 +494,6 @@ Example:
                 plan_raw = plan_raw[4:]
         eda_plan = json.loads(plan_raw)
     except Exception as e:
-        _file_logger.warning(f"[PLANNER] JSON parse failed, using fallback plan: {e}")
         _log_json("warning", category="planner_fallback", error=str(e))
         eda_plan = [
             "Dataset overview: shape, dtypes, missing value summary for all columns",
@@ -1099,17 +1041,6 @@ def run_eda(csv_path: str) -> dict:
 
     result = build_eda_graph().invoke(initial_state)
 
-    if LOG_TOKEN_STATS:
-        ts = get_token_summary()
-        _file_logger.info(
-            f"\n{'='*60}\n"
-            f"[TOKEN SUMMARY — PIPELINE COMPLETE]\n"
-            f"  Total API calls : {ts['calls']}\n"
-            f"  Input tokens    : {ts['input_tokens']:,}\n"
-            f"  Output tokens   : {ts['output_tokens']:,}\n"
-            f"  Total tokens    : {ts['total_tokens']:,}\n"
-            f"{'='*60}"
-        )
     _log_json("pipeline_complete", **get_token_summary())
 
     return result
