@@ -136,8 +136,7 @@ eda-agent/
 │   └── config.toml         # Auto-created — Streamlit server config (upload size limit)
 │
 ├── eda_outputs/            # Auto-created — plots generated during a run
-├── logs.log                # Text log — per-call token stats, optional full LLM logs
-├── logs.jsonl              # Structured JSON event log — every agent event timestamped
+├── logs.jsonl              # Structured JSON log — token stats, agent events, optional full LLM details
 └── errors.jsonl            # Structured error log — exceptions with full tracebacks
 ```
 
@@ -173,15 +172,17 @@ Maximum file size: **100 MB** (configurable in `config.py`). Auto-detection: if 
 
 ## Logging & Error Handling
 
+All logging is JSON — no plain text log files.
+
 | File | Format | Contents |
 |---|---|---|
-| `logs.log` | Plain text | Per-call token stats, optional full LLM prompt/response logs |
-| `logs.jsonl` | JSON Lines | Structured events: agent starts, LLM calls, step executions, warnings |
+| `logs.jsonl` | JSON Lines | Token stats, agent starts, LLM calls, step executions, warnings. Set `ENABLE_LOGGING=True` in `config.py` to also log full messages/responses. |
 | `errors.jsonl` | JSON Lines | Exceptions with timestamp, context, type, message, full traceback |
 
 ```jsonl
-{"ts": "2026-03-26T12:00:00", "event": "llm_call", "agent": "Data Explorer", "input_tokens": 1667, "output_tokens": 125, ...}
-{"timestamp": "2026-03-26T12:00:10", "context": "run_pipeline", "type": "AuthenticationError", "message": "...", "traceback": "..."}
+{"ts": "...", "event": "llm_call", "agent": "Data Explorer", "call_number": 1, "input_tokens": 1667, "output_tokens": 125, ...}
+{"ts": "...", "event": "step_executed", "agent": "Code Gen+Exec", "step_number": 1, "success": true, "retry_count": 0, ...}
+{"ts": "...", "event": "pipeline_complete", "agent": "Insights", "calls": 24, "total_tokens": 57000, ...}
 ```
 
 Errors are shown to users as clean, actionable messages. Full tracebacks are logged to `errors.jsonl` and available behind a collapsed "Technical details" expander for pipeline errors.
